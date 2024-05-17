@@ -2,9 +2,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Load your dataset into a DataFrame
-df = pd.read_excel('Outflows of foreign population by nationality.xls')
+# Load your dataset into a DataFrame with error handling
+try:
+    df = pd.read_excel('Outflows of foreign population by nationality.xls')
+except FileNotFoundError:
+    print("Error: The file was not found.")
+    exit()
+except Exception as e:
+    print(f"An error occurred: {e}")
+    exit()
 
+# Check for expected columns
+expected_columns = ['Gender', 'AD clicks']
+if not all(column in df.columns for column in expected_columns):
+    print(f"Error: Dataset does not contain the expected columns: {expected_columns}")
+    exit()
 
 # Check for missing values
 missing_values = df.isnull().sum()
@@ -46,16 +58,15 @@ print("Click rates by gender:")
 print(pivot_table['Click Rate'])
 
 # Plotting
-pivot_table.plot(kind='bar', color=['red', 'blue', 'green'], alpha=0.5)
+ax = pivot_table[['Clicked', 'Not Used', 'Used']].plot(kind='bar', color=['red', 'blue', 'green'], alpha=0.5)
 plt.title('Clicks by Gender')
 plt.xlabel('Gender')
-plt.ylabel('Click')
+plt.ylabel('Number of Clicks')
 plt.xticks(rotation=0)
 plt.legend(['Clicked', 'Not Used', 'Used'], loc='upper right')
 
 # Displaying values on bars
-for container in plt.gca().containers:
-    plt.gca().bar_label(container, fmt='%d')
+for container in ax.containers:
+    ax.bar_label(container, fmt='%d')
 
 plt.show()
-
